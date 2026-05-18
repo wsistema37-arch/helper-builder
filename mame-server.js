@@ -87,7 +87,32 @@ async function handleRequest(req, res) {
 
   // GET /api/health
   if (req.method === "GET" && url.pathname === "/api/health") {
-    json(res, 200, { ok: true, port: PORT });
+    json(res, 200, { ok: true, port: PORT, version: "v3.1" });
+    return;
+  }
+
+  // GET /api/config — carrega config persistida no servidor
+  if (req.method === "GET" && url.pathname === "/api/config") {
+    json(res, 200, readConfig());
+    return;
+  }
+
+  // POST /api/config — salva config no servidor (sobrevive a outro navegador/PC)
+  if (req.method === "POST" && url.pathname === "/api/config") {
+    let body;
+    try { body = await parseBody(req); } catch { json(res, 400, { error: "JSON inválido" }); return; }
+    const ok = writeConfig({ ...readConfig(), ...body, updatedAt: Date.now() });
+    json(res, ok ? 200 : 500, ok ? { ok: true } : { error: "Falha ao salvar config.json" });
+    return;
+  }
+
+  // GET /api/launches — últimas 50 execuções
+  if (req.method === "GET" && url.pathname === "/api/launches") {
+    try {
+      const content = fs.existsSync(LOG_FILE) ? fs.readFileSync(LOG_FILE, "utf8") : "";
+      const lines = content.trim().split("\n").filter(Boolean).slice(-50).reverse();
+      json(res, 200, { launches: lines.map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean) });
+    } catch (err) { json(res, 500, { error: err.message }); }
     return;
   }
 
