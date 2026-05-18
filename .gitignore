@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# MAME launcher runtime
+config.json
+launches.log
