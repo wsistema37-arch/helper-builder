@@ -7,8 +7,22 @@ import http from "http";
 import { spawn, execFile } from "child_process";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 const PORT = 7777;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CONFIG_FILE = path.join(__dirname, "config.json");
+const LOG_FILE = path.join(__dirname, "launches.log");
+
+function readConfig() {
+  try { return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8")); } catch { return {}; }
+}
+function writeConfig(data) {
+  try { fs.writeFileSync(CONFIG_FILE, JSON.stringify(data, null, 2), "utf8"); return true; } catch { return false; }
+}
+function appendLog(entry) {
+  try { fs.appendFileSync(LOG_FILE, JSON.stringify({ ts: Date.now(), ...entry }) + "\n", "utf8"); } catch {}
+}
 
 function json(res, status, data) {
   res.writeHead(status, {
