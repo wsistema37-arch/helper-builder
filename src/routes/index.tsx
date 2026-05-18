@@ -210,6 +210,11 @@ function Home() {
 
   const saveCfg = (mamePath: string, romsDir: string) => {
     try { localStorage.setItem(CFG_KEY, JSON.stringify({ mamePath, romsDir })); } catch {}
+    // Sincroniza com servidor para sobreviver a outro navegador/PC
+    fetch(`${BACKEND}/api/config`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mamePath, romsDir }),
+    }).catch(() => {});
   };
 
   const handleApplyMamePath = async () => {
