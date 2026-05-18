@@ -97,26 +97,44 @@ function Home() {
     } catch {}
     const DEFAULT_MAME = "C:\\Users\\cordeiro\\Downloads\\Mameplus_0.168.2\\Mameplus_0.168.2\\mame.exe";
     const DEFAULT_ROMS = "C:\\Users\\cordeiro\\Downloads\\Mameplus_0.168.2\\Mameplus_0.168.2\\roms";
-    checkBackend().then((ok) => {
+    checkBackend().then(async (ok) => {
       if (!ok) { setMameStatus("not_found"); return; }
+      // Tenta carregar config persistida do servidor (sobrevive a outro navegador)
+      let mamePath = "", romsDir = "";
       try {
         const cfg = localStorage.getItem(CFG_KEY);
-        if (cfg) {
-          const { mamePath, romsDir } = JSON.parse(cfg);
-          if (mamePath) checkMame(mamePath);
-          if (romsDir) scanRoms(romsDir);
-        } else {
-          setMameExePath(DEFAULT_MAME);
-          setRomsPath(DEFAULT_ROMS);
-          checkMame(DEFAULT_MAME);
-          scanRoms(DEFAULT_ROMS);
-          saveCfg(DEFAULT_MAME, DEFAULT_ROMS);
-        }
+        if (cfg) { const c = JSON.parse(cfg); mamePath = c.mamePath || ""; romsDir = c.romsDir || ""; }
       } catch {}
+      if (!mamePath || !romsDir) {
+        try {
+          const r = await fetch(`${BACKEND}/api/config`);
+          const srv = await r.json();
+          if (srv.mamePath && !mamePath) mamePath = srv.mamePath;
+          if (srv.romsDir && !romsDir) romsDir = srv.romsDir;
+        } catch {}
+      }
+      if (!mamePath) mamePath = DEFAULT_MAME;
+      if (!romsDir) romsDir = DEFAULT_ROMS;
+      setMameExePath(mamePath); setConfigMamePath(mamePath);
+      setRomsPath(romsDir); setConfigRomsPath(romsDir);
+      saveCfg(mamePath, romsDir);
+      checkMame(mamePath);
+      scanRoms(romsDir);
     });
     inputRef.current?.focus();
+
+    // Auto-recuperação: re-checa backend a cada 5s
+    const healthInterval = setInterval(() => { checkBackend(); }, 5000);
+    return () => clearInterval(healthInterval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Re-scan automático de ROMs a cada 30s (pega ROMs novas sem precisar reabrir)
+  useEffect(() => {
+    if (!romsPath || backendStatus !== "ok") return;
+    const interval = setInterval(() => { scanRoms(romsPath); }, 30000);
+    return () => clearInterval(interval);
+  }, [romsPath, backendStatus, scanRoms]);
 
   const getFilteredRoms = () => {
     const q = searchQuery.toLowerCase();
