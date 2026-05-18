@@ -227,6 +227,7 @@ async function handleRequest(req, res) {
 
       child.unref();
 
+      appendLog({ rom, ok: true, pid: child.pid });
       json(res, 200, { ok: true, rom, pid: child.pid, cmd });
     } catch (err) {
       console.error(`[MAME] Falha:`, err);
