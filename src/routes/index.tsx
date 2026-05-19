@@ -404,13 +404,13 @@ function Home() {
         </div>
       )}
 
-      {backendStatus === "offline" && !showConfig && (
+      {showMameInfo && backendStatus === "offline" && !showConfig && (
         <div className="fixed top-[46px] left-3 right-3 z-[38] rounded-b-md px-4 py-2 bg-red-900/25 border border-red-500/25 backdrop-blur-md flex items-center gap-2">
           <AlertTriangle size={11} className="text-red-400 flex-shrink-0" />
           <span className="font-display text-[7px] text-red-300">Backend offline! Abra um terminal e rode: <span className="text-neon-yellow">node mame-server.js</span></span>
         </div>
       )}
-      {backendStatus === "ok" && mameStatus === "not_found" && !showConfig && (
+      {showMameInfo && backendStatus === "ok" && mameStatus === "not_found" && !showConfig && (
         <div className="fixed top-[46px] left-3 right-3 z-[38] rounded-b-md px-4 py-2 bg-yellow-900/25 border border-yellow-500/25 backdrop-blur-md flex items-center gap-2">
           <AlertTriangle size={11} className="text-yellow-400 flex-shrink-0" />
           <span className="font-display text-[7px] text-yellow-300">MAME não configurado. Clique em CONFIG (ESC) para definir os caminhos.</span>
