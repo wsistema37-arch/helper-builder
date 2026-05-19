@@ -296,26 +296,31 @@ function Home() {
 
   return (
     <main className="min-h-screen overflow-hidden relative">
-      {/* TELA DE LOADING */}
+      {/* TELA DE APRESENTAÇÃO DO JOGO (enquanto carrega) */}
       {isLaunching && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
-          style={{ backgroundImage: "url('/assets/background.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#000" }}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative z-10 flex flex-col items-center gap-6">
-            <div className="font-display text-neon-cyan text-[11px] tracking-widest animate-pulse" style={{ textShadow: "0 0 20px cyan" }}>
-              MASTER GAMES ARCADE
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
+          style={{ backgroundImage: "url('/assets/loading_bg.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#000" }}>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
+          <div className="absolute inset-0 scanlines pointer-events-none opacity-40" />
+          <div className="relative z-10 flex flex-col items-center gap-8 px-6 text-center">
+            <div className="font-display text-neon-cyan text-[10px] tracking-[0.4em] animate-pulse" style={{ textShadow: "0 0 20px cyan" }}>
+              ▶ MASTER GAMES ARCADE
             </div>
-            <div className="font-display text-neon-magenta text-[22px] tracking-widest" style={{ textShadow: "0 0 30px magenta" }}>
-              INSERINDO FICHA...
+            <div className="font-display text-neon-magenta text-[44px] md:text-[64px] tracking-widest uppercase leading-none break-all max-w-[90vw]"
+              style={{ textShadow: "0 0 30px #ff00ff, 0 0 60px #ff00ff, 0 0 90px #ff00ff" }}>
+              {launchingRom.replace(/\.(zip|7z|chd)$/i, "")}
+            </div>
+            <div className="font-display text-neon-yellow text-[14px] tracking-[0.5em] animate-pulse" style={{ textShadow: "0 0 20px #ffeb3b" }}>
+              PREPARE-SE!
             </div>
             <div className="flex gap-2 mt-2">
               {[0,1,2,3,4,5,6,7].map(i => (
                 <div key={i} className="w-3 h-3 rounded-full bg-neon-cyan animate-bounce"
-                  style={{ animationDelay: `${i * 0.12}s`, boxShadow: "0 0 8px cyan" }} />
+                  style={{ animationDelay: `${i * 0.12}s`, boxShadow: "0 0 12px cyan" }} />
               ))}
             </div>
-            <div className="font-display text-neon-yellow text-[9px] mt-4 tracking-widest animate-pulse">
-              {launchMsg.replace("⏳ ", "").toUpperCase()}
+            <div className="font-display text-neon-green text-[9px] mt-2 tracking-widest animate-pulse">
+              INSERINDO FICHA... CARREGANDO JOGO...
             </div>
           </div>
         </div>
