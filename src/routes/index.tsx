@@ -198,6 +198,7 @@ function Home() {
       setTimeout(() => setLaunchMsg(""), 5000); return;
     }
     setIsLaunching(true);
+    setLaunchingRom(romName);
     setLaunchMsg(`⏳ Iniciando ${romName}...`);
     try {
       const r = await fetch(`${BACKEND}/api/launch`, {
@@ -215,7 +216,7 @@ function Home() {
         });
       } else { setLaunchMsg(`✗ ${data.error}`); }
     } catch { setLaunchMsg("✗ Falha ao chamar o backend."); }
-    finally { setTimeout(() => { setIsLaunching(false); setTimeout(() => setLaunchMsg(""), 3000); }, 3000); }
+    finally { setTimeout(() => { setIsLaunching(false); setLaunchingRom(""); setTimeout(() => setLaunchMsg(""), 3000); }, 4000); }
   };
 
   const saveCfg = (mamePath: string, romsDir: string) => {
