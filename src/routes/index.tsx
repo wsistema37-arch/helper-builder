@@ -41,14 +41,14 @@ function Home() {
   const [isLaunching, setIsLaunching] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [showMameInfo, setShowMameInfo] = useState(false);
+  const [launchingRom, setLaunchingRom] = useState<string>("");
   const [mameStatus, setMameStatus] = useState<"checking" | "found" | "not_found">("checking");
   const [backendStatus, setBackendStatus] = useState<"checking" | "ok" | "offline">("checking");
   const [configMamePath, setConfigMamePath] = useState("C:\\Users\\cordeiro\\Downloads\\Mameplus_0.168.2\\Mameplus_0.168.2\\mame.exe");
   const [configRomsPath, setConfigRomsPath] = useState("C:\\Users\\cordeiro\\Downloads\\Mameplus_0.168.2\\Mameplus_0.168.2\\roms");
   const [configMsg, setConfigMsg] = useState("");
   const [launchMsg, setLaunchMsg] = useState("");
-  const [showIntro, setShowIntro] = useState(true);
-  const [introFading, setIntroFading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -198,6 +198,7 @@ function Home() {
       setTimeout(() => setLaunchMsg(""), 5000); return;
     }
     setIsLaunching(true);
+    setLaunchingRom(romName);
     setLaunchMsg(`⏳ Iniciando ${romName}...`);
     try {
       const r = await fetch(`${BACKEND}/api/launch`, {
@@ -215,7 +216,7 @@ function Home() {
         });
       } else { setLaunchMsg(`✗ ${data.error}`); }
     } catch { setLaunchMsg("✗ Falha ao chamar o backend."); }
-    finally { setTimeout(() => { setIsLaunching(false); setTimeout(() => setLaunchMsg(""), 3000); }, 3000); }
+    finally { setTimeout(() => { setIsLaunching(false); setLaunchingRom(""); setTimeout(() => setLaunchMsg(""), 3000); }, 4000); }
   };
 
   const saveCfg = (mamePath: string, romsDir: string) => {
@@ -295,26 +296,31 @@ function Home() {
 
   return (
     <main className="min-h-screen overflow-hidden relative">
-      {/* TELA DE LOADING */}
+      {/* TELA DE APRESENTAÇÃO DO JOGO (enquanto carrega) */}
       {isLaunching && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
-          style={{ backgroundImage: "url('/assets/background.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#000" }}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative z-10 flex flex-col items-center gap-6">
-            <div className="font-display text-neon-cyan text-[11px] tracking-widest animate-pulse" style={{ textShadow: "0 0 20px cyan" }}>
-              MASTER GAMES ARCADE
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
+          style={{ backgroundImage: "url('/assets/loading_bg.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#000" }}>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
+          <div className="absolute inset-0 scanlines pointer-events-none opacity-40" />
+          <div className="relative z-10 flex flex-col items-center gap-8 px-6 text-center">
+            <div className="font-display text-neon-cyan text-[10px] tracking-[0.4em] animate-pulse" style={{ textShadow: "0 0 20px cyan" }}>
+              ▶ MASTER GAMES ARCADE
             </div>
-            <div className="font-display text-neon-magenta text-[22px] tracking-widest" style={{ textShadow: "0 0 30px magenta" }}>
-              INSERINDO FICHA...
+            <div className="font-display text-neon-magenta text-[44px] md:text-[64px] tracking-widest uppercase leading-none break-all max-w-[90vw]"
+              style={{ textShadow: "0 0 30px #ff00ff, 0 0 60px #ff00ff, 0 0 90px #ff00ff" }}>
+              {launchingRom.replace(/\.(zip|7z|chd)$/i, "")}
+            </div>
+            <div className="font-display text-neon-yellow text-[14px] tracking-[0.5em] animate-pulse" style={{ textShadow: "0 0 20px #ffeb3b" }}>
+              PREPARE-SE!
             </div>
             <div className="flex gap-2 mt-2">
               {[0,1,2,3,4,5,6,7].map(i => (
                 <div key={i} className="w-3 h-3 rounded-full bg-neon-cyan animate-bounce"
-                  style={{ animationDelay: `${i * 0.12}s`, boxShadow: "0 0 8px cyan" }} />
+                  style={{ animationDelay: `${i * 0.12}s`, boxShadow: "0 0 12px cyan" }} />
               ))}
             </div>
-            <div className="font-display text-neon-yellow text-[9px] mt-4 tracking-widest animate-pulse">
-              {launchMsg.replace("⏳ ", "").toUpperCase()}
+            <div className="font-display text-neon-green text-[9px] mt-2 tracking-widest animate-pulse">
+              INSERINDO FICHA... CARREGANDO JOGO...
             </div>
           </div>
         </div>
@@ -332,13 +338,16 @@ function Home() {
               <div className="font-display text-[10px] text-neon-cyan">MASTER GAMES ARCADE</div>
               <div className="font-body text-xs text-foreground/40 -mt-0.5">
                 Iniciador MAME
-                {backendStatus === "ok" && <span className="text-neon-green ml-2">● backend ok</span>}
-                {backendStatus === "offline" && <span className="text-red-400 ml-2">● backend offline</span>}
+                {showMameInfo && backendStatus === "ok" && <span className="text-neon-green ml-2">● backend ok</span>}
+                {showMameInfo && backendStatus === "offline" && <span className="text-red-400 ml-2">● backend offline</span>}
               </div>
             </div>
           </div>
           <div className="flex gap-2">
             <button onClick={() => setShowHistory(!showHistory)} className="font-display text-[8px] border border-neon-green/35 text-neon-green px-2.5 py-1 rounded bg-neon-green/5 hover:bg-neon-green/15 transition">⏱ RECENTE</button>
+            <button onClick={() => setShowMameInfo(v => !v)} className={`font-display text-[8px] border px-2.5 py-1 rounded transition ${showMameInfo ? "border-neon-yellow/50 text-neon-yellow bg-neon-yellow/10" : "border-white/15 text-foreground/40 bg-white/[0.02] hover:text-neon-yellow"}`}>
+              {showMameInfo ? "👁 MAME" : "👁 MAME"}
+            </button>
             <button onClick={() => { setShowConfig(!showConfig); setConfigMsg(""); }} className="font-display text-[8px] border border-neon-magenta/35 text-neon-magenta px-2.5 py-1 rounded bg-neon-magenta/5 hover:bg-neon-magenta/15 transition">
               <Settings2 size={9} className="inline mr-1" />CONFIG
             </button>
@@ -395,13 +404,13 @@ function Home() {
         </div>
       )}
 
-      {backendStatus === "offline" && !showConfig && (
+      {showMameInfo && backendStatus === "offline" && !showConfig && (
         <div className="fixed top-[46px] left-3 right-3 z-[38] rounded-b-md px-4 py-2 bg-red-900/25 border border-red-500/25 backdrop-blur-md flex items-center gap-2">
           <AlertTriangle size={11} className="text-red-400 flex-shrink-0" />
           <span className="font-display text-[7px] text-red-300">Backend offline! Abra um terminal e rode: <span className="text-neon-yellow">node mame-server.js</span></span>
         </div>
       )}
-      {backendStatus === "ok" && mameStatus === "not_found" && !showConfig && (
+      {showMameInfo && backendStatus === "ok" && mameStatus === "not_found" && !showConfig && (
         <div className="fixed top-[46px] left-3 right-3 z-[38] rounded-b-md px-4 py-2 bg-yellow-900/25 border border-yellow-500/25 backdrop-blur-md flex items-center gap-2">
           <AlertTriangle size={11} className="text-yellow-400 flex-shrink-0" />
           <span className="font-display text-[7px] text-yellow-300">MAME não configurado. Clique em CONFIG (ESC) para definir os caminhos.</span>
@@ -415,14 +424,16 @@ function Home() {
           <p className="font-body text-[11px] text-foreground/35 mb-2">
             {mameStatus === "found" ? `✓ MAME · ${romsList.length} jogos · ${favorites.length} favoritos` : mameStatus === "checking" ? "⏳ Verificando MAME..." : "⚠ MAME não configurado"}
           </p>
-          <div className="bg-black/30 border border-white/[0.05] rounded px-2 py-1.5">
-            <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-1">
-              <span className="font-display text-[6px]">MAME: <span className={mameStatusColor}>{mameStatusLabel}</span></span>
-              <span className="font-display text-[6px]">JOGOS: <span className="text-neon-yellow">{romsList.length}</span></span>
-              <span className="font-display text-[6px]">FAVORITOS: <span className="text-neon-yellow">{favorites.length}</span></span>
+          {showMameInfo && (
+            <div className="bg-black/30 border border-white/[0.05] rounded px-2 py-1.5">
+              <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-1">
+                <span className="font-display text-[6px]">MAME: <span className={mameStatusColor}>{mameStatusLabel}</span></span>
+                <span className="font-display text-[6px]">JOGOS: <span className="text-neon-yellow">{romsList.length}</span></span>
+                <span className="font-display text-[6px]">FAVORITOS: <span className="text-neon-yellow">{favorites.length}</span></span>
+              </div>
+              <div className="font-display text-[5px] text-foreground/25">↑↓ MOVER · ENTER JOGAR · * ESTRELA · ESC CONFIG</div>
             </div>
-            <div className="font-display text-[5px] text-foreground/25">↑↓ MOVER · ENTER NO MODO DE JOGO · * ESTRELA · ESC CONFIGURAÇÃO</div>
-          </div>
+          )}
         </div>
 
         <div className="px-3 py-2 border-b border-white/[0.06] flex-shrink-0">
@@ -500,7 +511,7 @@ function Home() {
       <footer className="fixed bottom-0 left-0 right-0 z-40">
         <div className={`px-4 py-1 flex items-center justify-between ${glass}`}>
           <div className="font-display text-[7px] text-foreground/25">© 2026 MASTER GAMES ARCADE · MAME LAUNCHER ULTIMATE</div>
-          <span className={`font-display text-[7px] ${mameStatus === "found" ? "text-neon-green animate-blink" : "text-red-400"}`}>{mameStatus === "found" ? "● ONLINE" : "● MAME OFFLINE"}</span>
+          {showMameInfo && <span className={`font-display text-[7px] ${mameStatus === "found" ? "text-neon-green animate-blink" : "text-red-400"}`}>{mameStatus === "found" ? "● ONLINE" : "● MAME OFFLINE"}</span>}
         </div>
         <div className="marquee-bar h-[2px] w-full" />
       </footer>
