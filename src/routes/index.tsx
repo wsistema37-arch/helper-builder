@@ -41,14 +41,14 @@ function Home() {
   const [isLaunching, setIsLaunching] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [showMameInfo, setShowMameInfo] = useState(false);
+  const [launchingRom, setLaunchingRom] = useState<string>("");
   const [mameStatus, setMameStatus] = useState<"checking" | "found" | "not_found">("checking");
   const [backendStatus, setBackendStatus] = useState<"checking" | "ok" | "offline">("checking");
   const [configMamePath, setConfigMamePath] = useState("C:\\Users\\cordeiro\\Downloads\\Mameplus_0.168.2\\Mameplus_0.168.2\\mame.exe");
   const [configRomsPath, setConfigRomsPath] = useState("C:\\Users\\cordeiro\\Downloads\\Mameplus_0.168.2\\Mameplus_0.168.2\\roms");
   const [configMsg, setConfigMsg] = useState("");
   const [launchMsg, setLaunchMsg] = useState("");
-  const [showIntro, setShowIntro] = useState(true);
-  const [introFading, setIntroFading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
