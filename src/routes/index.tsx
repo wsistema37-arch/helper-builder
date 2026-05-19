@@ -338,13 +338,16 @@ function Home() {
               <div className="font-display text-[10px] text-neon-cyan">MASTER GAMES ARCADE</div>
               <div className="font-body text-xs text-foreground/40 -mt-0.5">
                 Iniciador MAME
-                {backendStatus === "ok" && <span className="text-neon-green ml-2">● backend ok</span>}
-                {backendStatus === "offline" && <span className="text-red-400 ml-2">● backend offline</span>}
+                {showMameInfo && backendStatus === "ok" && <span className="text-neon-green ml-2">● backend ok</span>}
+                {showMameInfo && backendStatus === "offline" && <span className="text-red-400 ml-2">● backend offline</span>}
               </div>
             </div>
           </div>
           <div className="flex gap-2">
             <button onClick={() => setShowHistory(!showHistory)} className="font-display text-[8px] border border-neon-green/35 text-neon-green px-2.5 py-1 rounded bg-neon-green/5 hover:bg-neon-green/15 transition">⏱ RECENTE</button>
+            <button onClick={() => setShowMameInfo(v => !v)} className={`font-display text-[8px] border px-2.5 py-1 rounded transition ${showMameInfo ? "border-neon-yellow/50 text-neon-yellow bg-neon-yellow/10" : "border-white/15 text-foreground/40 bg-white/[0.02] hover:text-neon-yellow"}`}>
+              {showMameInfo ? "👁 MAME" : "👁 MAME"}
+            </button>
             <button onClick={() => { setShowConfig(!showConfig); setConfigMsg(""); }} className="font-display text-[8px] border border-neon-magenta/35 text-neon-magenta px-2.5 py-1 rounded bg-neon-magenta/5 hover:bg-neon-magenta/15 transition">
               <Settings2 size={9} className="inline mr-1" />CONFIG
             </button>
