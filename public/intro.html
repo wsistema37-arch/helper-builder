@@ -158,9 +158,17 @@
 </head>
 <body>
 
-<video id="bgVideo" autoplay muted playsinline>
-  <source src="intro_bg.mp4" type="video/mp4">
+<video id="bgVideo" autoplay muted playsinline preload="auto">
+  <source src="/intro_bg.mp4" type="video/mp4">
 </video>
+
+<!-- Overlay "Clique para começar com som" -->
+<div id="soundGate" style="position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);cursor:pointer;">
+  <div style="font-family:'Press Start 2P',monospace;font-size:14px;color:#00e5ff;letter-spacing:4px;text-shadow:0 0 20px #00e5ff;text-align:center;line-height:1.8;">
+    ▶ &nbsp; CLIQUE PARA INICIAR<br/>
+    <span style="font-size:9px;color:#e040fb;letter-spacing:3px;">COM SOM</span>
+  </div>
+</div>
 
 <div id="bgImage"></div>
 <div id="darkLayer"></div>
@@ -403,7 +411,9 @@ function enterLauncher() {
   setTimeout(() => {
     document.getElementById('exitOverlay').classList.add('active');
     setTimeout(() => {
-      window.location.href = 'http://localhost:8080';
+      // Sinaliza que a intro já passou e volta para o launcher (React)
+      try { sessionStorage.setItem('mga.introSeen','1'); } catch(e){}
+      window.location.href = '/?launcher=1';
     }, 700);
   }, 400);
 }
@@ -439,11 +449,22 @@ function createParticles() {
 }
 createParticles();
 
-// Inicia ao primeiro clique/toque (AudioContext precisa de gesto)
+// Inicia ao primeiro clique/toque (necessário pra desmutar vídeo + WebAudio)
 let started = false;
 function init() {
   if (started) return;
   started = true;
+  // Esconde o portão de som
+  const gate = document.getElementById('soundGate');
+  if (gate) gate.style.display = 'none';
+  // Desmuta o vídeo (só funciona após gesto do usuário)
+  const v = document.getElementById('bgVideo');
+  try {
+    v.muted = false;
+    v.volume = 0.8;
+    v.currentTime = 0;
+    v.play().catch(()=>{});
+  } catch(e){}
   ctx.resume().then(startIntro);
   document.removeEventListener('click', init);
   document.removeEventListener('keydown', init);
@@ -453,8 +474,6 @@ document.addEventListener('click', init);
 document.addEventListener('keydown', init);
 document.addEventListener('touchstart', init);
 
-// Auto-inicia após 1s mesmo sem interação (browsers permitem autoplay muted)
-setTimeout(() => { if (!started) { started=true; ctx.resume().then(startIntro); } }, 1000);
 </script>
 </body>
 </html>

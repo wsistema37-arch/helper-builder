@@ -85,6 +85,16 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    // Mostra a intro primeiro (uma vez por aba), depois cai no launcher
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const skipIntro = params.get("launcher") === "1" || sessionStorage.getItem("mga.introSeen") === "1";
+      if (!skipIntro) {
+        window.location.replace("/intro.html");
+        return;
+      }
+      sessionStorage.setItem("mga.introSeen", "1");
+    } catch {}
     try {
       const f = localStorage.getItem(FAV_KEY); if (f) setFavorites(JSON.parse(f));
       const h = localStorage.getItem(HIST_KEY); if (h) setHistory(JSON.parse(h));
@@ -362,6 +372,25 @@ function Home() {
               </div>
             </div>
             {configMsg && <div className={`font-display text-[7px] ${configMsg.startsWith("✓") ? "text-neon-green" : configMsg.startsWith("⏳") ? "text-neon-yellow" : "text-red-400"}`}>{configMsg}</div>}
+
+            {/* MAME OFICIAL OPEN-SOURCE + DICA DE COMPATIBILIDADE DE ROMS */}
+            <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-1.5">
+              <div className="font-display text-[7px] text-neon-magenta">// MAME OFICIAL (OPEN SOURCE)</div>
+              <div className="flex flex-wrap gap-2">
+                <a href="https://www.mamedev.org/release.html" target="_blank" rel="noopener noreferrer"
+                   className="font-display text-[7px] border border-neon-cyan/35 text-neon-cyan px-3 py-1.5 rounded bg-neon-cyan/5 hover:bg-neon-cyan/15 transition">
+                  ⬇ BAIXAR MAME OFICIAL
+                </a>
+                <a href="https://www.mamedev.org/roms/" target="_blank" rel="noopener noreferrer"
+                   className="font-display text-[7px] border border-neon-green/35 text-neon-green px-3 py-1.5 rounded bg-neon-green/5 hover:bg-neon-green/15 transition">
+                  ⬇ ROMS LEGAIS (MAMEDEV)
+                </a>
+              </div>
+              <div className="font-body text-[10px] text-foreground/45 leading-snug">
+                ⚠ Se alguns <span className="text-neon-yellow">.zip</span> não abrem é porque o romset é de outra versão do MAME (ex.: 0.139 / 0.245).
+                Use o <span className="text-neon-cyan">MAME oficial</span> e ROMs do <span className="text-neon-cyan">mesmo set</span>, ou rode <span className="text-neon-yellow">mame -verifyroms nomedorom</span> para conferir.
+              </div>
+            </div>
           </div>
         </div>
       )}
