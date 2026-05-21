@@ -1,6 +1,8 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "@fontsource/press-start-2p/400.css";
+@import "@fontsource/vt323/400.css";
 
 @custom-variant dark (&:is(.dark *));
 
