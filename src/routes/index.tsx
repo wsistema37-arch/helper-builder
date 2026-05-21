@@ -5,7 +5,7 @@ import Fuse from "fuse.js";
 import { useSpring, animated as animatedRaw } from "@react-spring/web";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const animated: any = animatedRaw;
-// @ts-expect-error - lib has no published types
+
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/opacity.css";
 import { Howl } from "howler";
